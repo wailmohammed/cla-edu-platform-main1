@@ -58,6 +58,10 @@ import { paddleRouter } from "./paddle.router";
 import { paymentConfigRouter } from "./payment-config.router";
 import { coursesRouter } from "./courses.router";
 import { getAllCourses } from "./db";
+import { educationOracleRouter } from "./education-oracle.router";
+import { alertsRouter } from "./alerts.router";
+import { briefRouter } from "./brief.router";
+import { personasRouter } from "./personas.router";
 
 export const appRouter = router({
   system: systemRouter,
@@ -433,6 +437,14 @@ export const appRouter = router({
    * Text-to-Speech using Fish Audio
    */
   tts: ttsRouter,
+
+  /**
+   * Education Oracle — Pythia-inspired learning intelligence
+   */
+  educationOracle: educationOracleRouter,
+  alerts: alertsRouter,
+  brief: briefRouter,
+  personas: personasRouter,
 });
 
 export type AppRouter = typeof appRouter;

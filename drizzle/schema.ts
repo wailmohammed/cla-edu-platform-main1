@@ -602,6 +602,143 @@ export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
   }),
 }));
 
+/**
+ * Education Oracle — Pythia-inspired learning intelligence layer.
+ */
+
+export const learningEvents = mysqlTable("learningEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  category: varchar("category", { length: 64 }).notNull(),
+  source: varchar("source", { length: 64 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  summary: text("summary"),
+  lat: decimal("lat", { precision: 9, scale: 6 }),
+  lng: decimal("lng", { precision: 9, scale: 6 }),
+  salience: decimal("salience", { precision: 3, scale: 2 }).default("0.50"),
+  ts: timestamp("ts").defaultNow().notNull(),
+  raw: json("raw"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LearningEvent = typeof learningEvents.$inferSelect;
+export type InsertLearningEvent = typeof learningEvents.$inferInsert;
+
+export const learningBriefs = mysqlTable("learningBriefs", {
+  id: varchar("id", { length: 64 }).notNull().primaryKey(),
+  ts: timestamp("ts").defaultNow().notNull(),
+  eventCount: int("eventCount").default(0),
+  domains: json("domains"),
+  text: text("text"),
+  topEvents: json("topEvents"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LearningBrief = typeof learningBriefs.$inferSelect;
+export type InsertLearningBrief = typeof learningBriefs.$inferInsert;
+
+export const predictions = mysqlTable("predictions", {
+  id: varchar("id", { length: 64 }).notNull().primaryKey(),
+  userId: int("userId"),
+  statement: text("statement").notNull(),
+  horizon: varchar("horizon", { length: 16 }).notNull(),
+  probability: decimal("probability", { precision: 5, scale: 2 }).notNull(),
+  reasoning: text("reasoning"),
+  drivers: json("drivers"),
+  location: varchar("location", { length: 255 }),
+  lat: decimal("lat", { precision: 9, scale: 6 }),
+  lng: decimal("lng", { precision: 9, scale: 6 }),
+  agents: json("agents"),
+  baseProbability: decimal("baseProbability", { precision: 5, scale: 2 }),
+  prevProbability: decimal("prevProbability", { precision: 5, scale: 2 }),
+  split: boolean("split").default(false),
+  briefId: varchar("briefId", { length: 64 }),
+  ts: timestamp("ts").defaultNow().notNull(),
+  resolved: boolean("resolved").default(false),
+  verdict: varchar("verdict", { length: 16 }),
+  resolvedAt: timestamp("resolvedAt"),
+});
+
+export type Prediction = typeof predictions.$inferSelect;
+export type InsertPrediction = typeof predictions.$inferInsert;
+
+export const personas = mysqlTable("personas", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 64 }).notNull().unique(),
+  lens: text("lens").notNull(),
+  systemPrompt: text("systemPrompt").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Persona = typeof personas.$inferSelect;
+export type InsertPersona = typeof personas.$inferInsert;
+
+export const userPersonaPrefs = mysqlTable("userPersonaPrefs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  personaId: int("personaId").notNull(),
+  model: varchar("model", { length: 128 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserPersonaPref = typeof userPersonaPrefs.$inferSelect;
+export type InsertUserPersonaPref = typeof userPersonaPrefs.$inferInsert;
+
+export const alertRules = mysqlTable("alertRules", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  kind: varchar("kind", { length: 32 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  params: json("params").notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AlertRule = typeof alertRules.$inferSelect;
+export type InsertAlertRule = typeof alertRules.$inferInsert;
+
+export const alertFeed = mysqlTable("alertFeed", {
+  id: int("id").autoincrement().primaryKey(),
+  ruleId: int("ruleId"),
+  userId: int("userId").notNull(),
+  kind: varchar("kind", { length: 32 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  body: text("body"),
+  ts: timestamp("ts").defaultNow().notNull(),
+  read: boolean("read").default(false).notNull(),
+});
+
+export type AlertFeedItem = typeof alertFeed.$inferSelect;
+export type InsertAlertFeedItem = typeof alertFeed.$inferInsert;
+
+export const morningBriefs = mysqlTable("morningBriefs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  text: text("text").notNull(),
+  eventCount: int("eventCount").default(0),
+  domains: json("domains"),
+  ts: timestamp("ts").defaultNow().notNull(),
+  read: boolean("read").default(false).notNull(),
+});
+
+export type MorningBrief = typeof morningBriefs.$inferSelect;
+export type InsertMorningBrief = typeof morningBriefs.$inferInsert;
+
+export const predictionResolutions = mysqlTable("predictionResolutions", {
+  id: int("id").autoincrement().primaryKey(),
+  predictionId: varchar("predictionId", { length: 64 }).notNull(),
+  verdict: varchar("verdict", { length: 16 }).notNull(),
+  evidence: text("evidence"),
+  model: varchar("model", { length: 128 }),
+  judgedAt: timestamp("judgedAt").defaultNow().notNull(),
+});
+
+export type PredictionResolution = typeof predictionResolutions.$inferSelect;
+export type InsertPredictionResolution = typeof predictionResolutions.$inferInsert;
+
 export const paymentProvidersRelations = relations(paymentProviders, ({ many }) => ({
   payments: many(payments),
 }));
@@ -642,5 +779,51 @@ export const certificatesRelations = relations(certificates, ({ one }) => ({
   course: one(courses, {
     fields: [certificates.courseId],
     references: [courses.id],
+  }),
+}));
+
+export const learningEventsRelations = relations(learningEvents, ({ one }) => ({
+  user: one(users, {
+    fields: [learningEvents.userId],
+    references: [users.id],
+  }),
+}));
+
+export const predictionsRelations = relations(predictions, ({ one }) => ({
+  user: one(users, {
+    fields: [predictions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const userPersonaPrefsRelations = relations(userPersonaPrefs, ({ one }) => ({
+  user: one(users, {
+    fields: [userPersonaPrefs.userId],
+    references: [users.id],
+  }),
+  persona: one(personas, {
+    fields: [userPersonaPrefs.personaId],
+    references: [personas.id],
+  }),
+}));
+
+export const alertRulesRelations = relations(alertRules, ({ one }) => ({
+  user: one(users, {
+    fields: [alertRules.userId],
+    references: [users.id],
+  }),
+}));
+
+export const alertFeedRelations = relations(alertFeed, ({ one }) => ({
+  user: one(users, {
+    fields: [alertFeed.userId],
+    references: [users.id],
+  }),
+}));
+
+export const morningBriefsRelations = relations(morningBriefs, ({ one }) => ({
+  user: one(users, {
+    fields: [morningBriefs.userId],
+    references: [users.id],
   }),
 }));

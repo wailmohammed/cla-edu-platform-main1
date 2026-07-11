@@ -40,6 +40,12 @@ import Signup from "@/pages/Signup";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import VerifyEmail from "@/pages/VerifyEmail";
+import OracleDashboard from "@/pages/OracleDashboard";
+import Scorecard from "@/pages/Scorecard";
+import Alerts from "@/pages/Alerts";
+import Brief from "@/pages/Brief";
+import Personas from "@/pages/Personas";
+import MCP from "@/pages/MCP";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -103,6 +109,12 @@ function Router() {
       <Route path="/study-groups" component={StudyGroupsEnhanced} />
       <Route path="/analytics" component={ProgressAnalyticsEnhanced} />
       <Route path="/email-preferences" component={EmailPreferencesPage} />
+      <Route path="/oracle" component={OracleDashboard} />
+      <Route path="/scorecard" component={Scorecard} />
+      <Route path="/alerts" component={Alerts} />
+      <Route path="/brief" component={Brief} />
+      <Route path="/personas" component={Personas} />
+      <Route path="/mcp" component={MCP} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
